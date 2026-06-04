@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<robot name="barrier_with_lidar" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find livox_laser_simulation)/urdf/livox_avia.xacro" />
+  <xacro:include filename="$(find pig_simulation)/urdf/stereo_camera.xacro" />
+
+  <!-- Dummy root link to avoid KDL "root inertia" warning -->
+  <link name="base_link"/>
+
+  <!-- Person mesh link -->
+  <link name="barrier_link">
+    <visual>
+      <origin xyz="6 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="model://person_walking/meshes/walking.dae" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="6 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="model://person_walking/meshes/walking.dae" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1000.0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <!-- Make person + lidar behave like a kinematic visual object (no gravity / no collisions) -->
+  <gazebo reference="barrier_link">
+    <gravity>false</gravity>
+    <selfCollide>false</selfCollide>
+    <kinematic>true</kinematic>
+    <collide_bitmask>0</collide_bitmask>
+  </gazebo>
+
+  <!-- Fix base_link -> barrier_link -->
+  <joint name="base_to_barrier" type="fixed">
+    <parent link="base_link"/>
+    <child link="barrier_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Attach Livox Avia sensor -->
+  <xacro:Livox_AVIA name="livox" />
+
+  <!-- Fix barrier_link -> livox_base -->
+  <joint name="barrier_to_lidar_joint" type="fixed">
+    <parent link="barrier_link"/>
+    <child link="livox_base"/>
+    <origin xyz="3 0 1.7" rpy="0 0.52 -3.14159"/>
+  </joint>
+
+  <!-- Attach Stereo Camera -->
+  <xacro:stereo_camera parent_link="livox_base" />
+
+  <gazebo reference="livox_base">
+    <gravity>false</gravity>
+    <selfCollide>false</selfCollide>
+    <kinematic>true</kinematic>
+    <collide_bitmask>0</collide_bitmask>
+  </gazebo>
+
+  <!-- Make the whole model static in Gazebo -->
+  <gazebo>
+    <static>false</static>
+  </gazebo>
+
+</robot>

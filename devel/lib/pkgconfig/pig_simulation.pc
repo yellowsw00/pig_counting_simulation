@@ -1,0 +1,8 @@
+prefix=/home/hsm/pig_ws/devel
+
+Name: pig_simulation
+Description: Description of pig_simulation
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

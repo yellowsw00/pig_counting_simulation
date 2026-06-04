@@ -1,0 +1,52 @@
+<launch>
+    <!-- Gazebo arguments -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+    <!-- Launch Gazebo with the specified world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find pig_simulation)/worlds/pig.world"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="headless" value="$(arg headless)"/>
+        <arg name="debug" value="$(arg debug)"/>
+    </include>
+
+    <!-- Load the URDF into the ROS Parameter Server -->
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder '$(find pig_simulation)/urdf/barrier_with_lidar.urdf.xacro'" />
+
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -model barrier_with_lidar -param robot_description -x -0.265 -y -0.377 -z 0.1"/>
+
+        <!-- Start Robot State Publisher -->
+
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+            <!-- Run the PointCloud to PointCloud2 conversion script -->
+            <node name="pointcloud_to_pointcloud2" pkg="pig_simulation" type="pc_to_pc2.py" output="screen">
+              <remap from="/person_lidar/scan" to="/scan"/>
+            </node>
+            
+                <!-- Publish the missing transform from the livox link to the sensor's frame_id -->
+                <node pkg="tf" type="static_transform_publisher" name="livox_to_laser_tf_publisher"
+                      args="0 0 0 0 0 0 livox laser_livox 100" />
+            
+            
+    <!-- Move person_walking (and attached lidar) back-and-forth along Y in [-2, 2] -->
+    <node pkg="pig_simulation" type="move_person_walking.py" name="move_person_walking" output="screen">
+      <param name="model_name" value="barrier_with_lidar"/>
+      <param name="amplitude" value="2.0"/>
+      <param name="period" value="40.0"/>
+      <param name="x" value="-0.265"/>
+      <param name="z" value="0.1"/>
+      <param name="yaw" value="0.0"/>
+      <param name="rate" value="30.0"/>
+    </node>
+
+</launch>

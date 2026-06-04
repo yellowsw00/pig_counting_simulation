@@ -1,0 +1,2 @@
+livox_laser_simulation:pig_simulation
+-DCMAKE_CXX_STANDARD=17 -DCATKIN_DEVEL_PREFIX=/home/hsm/pig_ws/devel -DCMAKE_INSTALL_PREFIX=/home/hsm/pig_ws/install -G Unix Makefiles
