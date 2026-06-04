@@ -30,9 +30,7 @@
 ├── src
 │   ├── pig_simulation          # 核心仿真包（包含环境模型、机器人描述及启动配置）
 │   └── livox_laser_simulation   # Livox 激光雷达 Gazebo 插件
-├── 佛山白天/                   # 实测/仿真数据示例 (Daytime)
-├── 清远夜晚/                   # 实测/仿真数据示例 (Nighttime)
-└── README_joshua.md            # 本说明文档
+└── README.md            # 本说明文档
 ```
 
 ## 🚀 快速开始 (Getting Started - WSL2/Ubuntu 20.04)
